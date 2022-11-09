@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Controller;
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 /*
@@ -15,4 +16,8 @@
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
+});
+$router->get('/api/ola', function () use ($router) {
+    
+    return $response->json(Controller::index());
 });
