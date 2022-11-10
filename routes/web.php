@@ -15,9 +15,15 @@ use App\Http\Controllers\Controller;
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return "te amo nat gama";
 });
 $router->get('/api/ola', function () use ($router) {
     
     return $response->json(Controller::index());
+}); 
+
+$router->group(['prefix' => 'user'], function () use ($router) {
+    $router->get('/', 'UserController@index');
+
 });
+//ola
