@@ -17,13 +17,17 @@ use App\Http\Controllers\Controller;
 $router->get('/', function () use ($router) {
     return "te amo nat gama";
 });
-$router->get('/api/ola', function () use ($router) {
+$router->get('/api/test', function () use ($router) {
     
-    return $response->json(Controller::index());
+    return $response->json(PropertyController::getAll());
 }); 
 
-$router->group(['prefix' => 'user'], function () use ($router) {
-    $router->get('/', 'UserController@index');
+
+
+$router->group(['prefix' => 'api'], function () use ($router) {
+    $router->get('/user', 'UserController@index');
+    $router->get('/property', 'PropertyController@getAll');
+
 
 });
 //ola
