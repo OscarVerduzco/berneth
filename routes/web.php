@@ -27,6 +27,8 @@ $router->get('/api/test', function () use ($router) {
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->get('/user', 'UserController@index');
     $router->get('/property', 'PropertyController@getAll');
+    $router->post('/singin', 'SessionController@createAccount');
+    $router->post('/login', 'SessionController@login');
 
 
 });
