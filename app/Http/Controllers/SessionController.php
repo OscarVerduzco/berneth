@@ -5,7 +5,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\TypeUser;
 use App\Models\DetailUserType;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class SessionController extends Controller
 {
@@ -14,16 +16,18 @@ class SessionController extends Controller
     {
         try {
             DB::beginTransaction();
-            $user = new User([
-                'name' => $request->name,                
-                'email' => $request->email,
+            $user=User::create([
                 'username' => $request->email,
+                //'password'=>bcrypt($request->password),
                 'password' => Hash::make($request->password),//Encrypt password
+                'name' => $request->name,                
+                'lastname' => $request->lastname,                
+                'email' => $request->email,
                 'phone' => $request->phone,
                 'address' => $request->address,
                 'city' => $request->city,
                 'state' => $request->state,
-                'zip' => $request->zip,
+                'zipCode' => $request->zip,
                 'status' => 1
             ]);
             $user->save();
@@ -53,11 +57,13 @@ class SessionController extends Controller
                 'status' => 'ok',
             'message' => 'Successfully created user!'
         ], 201);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error creating user!'
+                'message' => 'Error creating user!',
+                'error' => $e->getMessage(),
+                'line' => $e->getLine()
             ], 500);
         }
         
@@ -76,10 +82,11 @@ class SessionController extends Controller
         try {
             Db::beginTransaction();
             $user = User::where('email', $request->email)->first();
+            $passcrypt=Hash::make($request->password);
             if ($user) {
-                if ($user->password == $request->password) {
+                if (Hash::check($request->password, $user->password)) {
                     $token = $this->createToken($request->email, $request->password);
-                    $user->api_token = $token;
+                    $user->apiToken = $token;
                     $user->save();
                     Db::commit();
                     return response()->json([
@@ -101,7 +108,8 @@ class SessionController extends Controller
             Db::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error logging in!'
+                'message' => 'Error logging in!',
+                'error' => $th->getMessage()
             ], 500);
         }
     }
