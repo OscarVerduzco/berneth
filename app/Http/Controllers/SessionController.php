@@ -114,6 +114,36 @@ class SessionController extends Controller
         }
     }
 
+    //Function to logout
+    public function logout(Request $request)
+    {
+        try {
+            Db::beginTransaction();
+            $user = User::where('apiToken', $request->token)->first();
+            if ($user) {
+                $user->apiToken = null;
+                $user->save();
+                Db::commit();
+                return response()->json([
+                    'status' => 'ok',
+                    'message' => 'Successfully logged out!'
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ], 401);
+            }
+        } catch (\Throwable $th) {
+            Db::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error logging out!',
+                'error' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     //Function to update Account
 
 }
