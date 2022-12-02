@@ -8,16 +8,52 @@ use Illuminate\Support\Facades\DB;
 
 class PropertyController extends Controller
 {
-    public function getAll()
+    //function to get all active properties
+    public function getAll(Request $request)
     {
-        $properties = Property::all();
-        return response()->json($properties);
+        DB::beginTransaction();
+        try {
+            if($this->validarToken($request->header('token'))){
+                //get properties with status 1
+                $properties = Property::where('status', 1)->get();
+                DB::commit();
+                return $properties;
+            }else{
+                return response()->json(['error' => 'Unauthorized'], 200);
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $e->getMessage();
+        }
+    }
+
+    //function to get all deactivate properties
+    public function getAllDel(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            if($this->validarToken($request->header('token'))){
+                //get properties with status 1
+                $properties = Property::where('status', 0)->get();
+                DB::commit();
+                return $properties;
+            }else{
+                return response()->json(['error' => 'Unauthorized'], 200);
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $e->getMessage();
+        }
     }
 
     //function to create a property
     public function createProperty(Request $request)
     {
+
         try{
+            if(!$this->validarToken($request->header('token'))){
+                return response()->json(['error' => 'Unauthorized'], 200);
+            }
             DB::beginTransaction();
             $property = Property::create([
                 'name' => $request->name,
@@ -51,6 +87,9 @@ class PropertyController extends Controller
     //function to update a property
     public function updateProperty(Request $request, $id)
     {
+        if(!$this->validarToken($request->header('token'))){
+            return response()->json(['error' => 'Unauthorized'], 200);
+        }
         DB::beginTransaction();
         try{
             $property = Property ::find($id);
@@ -81,8 +120,11 @@ class PropertyController extends Controller
     }
 
     //function to delete a property
-    public function deleteProperty($id)
+    public function deleteProperty($id, Request $request)
     {
+        if(!$this->validarToken($request->header('token'))){
+            return response()->json(['error' => 'Unauthorized'], 200);
+        }
         DB::beginTransaction();
         try{
             $property = Property::find($id);
@@ -106,6 +148,9 @@ class PropertyController extends Controller
     //function to search a property
     public function search($request)
     {
+        if(!$this->validarToken($request->header('token'))){
+            return response()->json(['error' => 'Unauthorized'], 200);
+        }
         $properties = Property::where('name', 'like', '%'.$request.'%')
         ->orWhere('description', 'like', '%'.$request.'%')
         ->orWhere('address', 'like', '%'.$request.'%')
@@ -119,6 +164,9 @@ class PropertyController extends Controller
     //fucntion to upsert
     public function upsertProperty(Request $request)
     {
+        if(!$this->validarToken($request->header('token'))){
+            return response()->json(['error' => 'Unauthorized'], 200);
+        }
         DB::beginTransaction();
         try{
             $id=$request->id;

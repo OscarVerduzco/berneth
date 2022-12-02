@@ -55,6 +55,7 @@ class SessionController extends Controller
             DB::commit();
             return response()->json([
                 'status' => 'ok',
+                'data'=> $user,
             'message' => 'Successfully created user!'
         ], 201);
         } catch (\Exception $e) {
@@ -92,7 +93,7 @@ class SessionController extends Controller
                     return response()->json([
                         'status' => 'ok',
                         'message' => 'Successfully logged in!',
-                        'token' => $token
+                        'data' => $user
                     ], 200);
                 } else {
                     return response()->json([
@@ -147,3 +148,5 @@ class SessionController extends Controller
     //Function to update Account
 
 }
+
+// 
